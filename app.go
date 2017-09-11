@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -18,6 +19,7 @@ func main() {
 	services.SessionPeriod = flag.Int("sessionPeriod", 3600, "How many seconds before sessions expires")
 	services.UserFile = flag.String("usersFile", "users.csv", "List of Users and salted/hashed password with their roles")
 	services.SessionsFile = flag.String("sessionFile", "sessions.csv", "List of long-term sessions which survive reboots")
+	port := flag.Int("port", 3000, "Port to user")
 
 	flag.Parse()
 
@@ -60,5 +62,5 @@ func main() {
 	// Stats runs across all instances
 	n.Use(services.StatsMiddleware)
 	n.UseHandler(mux)
-	n.Run(":3000")
+	n.Run(fmt.Sprintf(":%d", *port))
 }
