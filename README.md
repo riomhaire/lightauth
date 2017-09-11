@@ -140,13 +140,13 @@ The API is a fairly simple one and consists of:
 5. Get session token details (get roles).
 6. Get Call Statistics.
 
-The endpoint in the default startup can be found at "http://<host>:3000/api/v1/authentication" or "http://<host>:3000/api/v1/session" or "http://<host>:3000/api/v1/admin" - and yes we know we should be using HTTPS or some other transport medium, but this a simple project to help us learn GO and not a prod app.
+The endpoint in the default startup can be found at "http://somehost:3000/api/v1/authentication" or "http://somehost:3000/api/v1/session" or "http://somehost:3000/api/v1/admin" - and yes we know we should be using HTTPS or some other transport medium, but this a simple project to help us learn GO and not a prod app.
 
 Content-Type should be "application/json"
 
 ### Authenticate/Login.
 
-Example request ("http://<host>:3000/api/v1/authentication"):
+Example request ("http://somehost:3000/api/v1/authentication"):
 
 ```json
 {
@@ -185,7 +185,7 @@ Example response on error:
 
 ### Verify a session token.
 
-Example request ("http://<host>:3000/api/v1/session"):
+Example request ("http://somehost:3000/api/v1/session"):
 
 ```json
 {
@@ -213,7 +213,7 @@ result is true or false depending is session token is valid or not.
 
 ### Invalidate session.
 
-Example request  ("http://<host>:3000/api/v1/session"):
+Example request  ("http://somehost:3000/api/v1/session"):
 
 ```json
 {
@@ -237,7 +237,7 @@ Example response:
 ```
 ### List known session tokens.
 
-Example request ("http://<host>:3000/api/v1/session"):
+Example request ("http://somehost:3000/api/v1/session"):
 
 ```json
 {
@@ -273,7 +273,7 @@ Example response:
 ```
 ### Get session token details (get roles).
 
-Example request ("http://<host>:3000/api/v1/session"):
+Example request ("http://somehost:3000/api/v1/session"):
 
 ```json
 {
@@ -309,7 +309,7 @@ The 'error' field will be non-null on error.
 
 More of an devops call which we added to see what "github.com/thoas/stats" would produce.
 
-Example request ("http://<host>:3000/api/v1/admin"):
+Example request ("http://somehost:3000/api/v1/admin"):
 
 ```json
 {
