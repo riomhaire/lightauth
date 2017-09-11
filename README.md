@@ -11,7 +11,9 @@ All communication is done via json RPC.
 After cloning the repository you need to install the few dependencies. Execute the following within the main directory.
 
 ```bash
-go get ./...
+$ go get github.com/riomhaire/lightauth
+$ cd <gopath-root>/src/github.com/riomhaire/lightauth
+$ go get ./...
 ```
 
 There are three applications - the server is in the 'lightauth' directory, a session generation application (useful for generating API tokens with roles such as admin), and a 'user' app for creating users suitable for including in the users.csv file (similar to passwd). 
