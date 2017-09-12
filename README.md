@@ -8,7 +8,7 @@ All communication is done via json RPC.
 
 ## Installation
 
-After cloning the repository you need to install the few dependencies. Execute the following within the main directory.
+The simplest way if you 'make' installed is to run 'make' which will install all the dependencies and install the apps. Otherwise After cloning the repository you need to install the few dependencies. Execute the following within the main directory.
 
 ```bash
 $ go get github.com/riomhaire/lightauth

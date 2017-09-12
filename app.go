@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/riomhaire/lightauth/services"
 
@@ -13,8 +14,14 @@ import (
 	"github.com/urfave/negroni"
 )
 
+var (
+	Version string = "0.3"
+)
+
 func main() {
 	// Command lines
+	fmt.Printf("%s version %s\n", os.Args[0], Version)
+
 	services.SessionSecret = flag.String("sessionSecret", "secret", "Master key which is used to generate system jwt")
 	services.SessionPeriod = flag.Int("sessionPeriod", 3600, "How many seconds before sessions expires")
 	services.UserFile = flag.String("usersFile", "users.csv", "List of Users and salted/hashed password with their roles")
