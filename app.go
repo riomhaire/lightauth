@@ -35,7 +35,7 @@ func main() {
 	flag.Parse()
 
 	// Dump parameters
-	log.Printf("\tsessionSecret: %v\n\tsessionPeriod: %v\n\tuserFile: %v\n\tsessionFile: %v\n\tuseSSL: %v\n\tserverCert: %v\n\tserverKey: %v\n",
+	log.Printf("\n\tsessionSecret: %v\n\tsessionPeriod: %v\n\tuserFile: %v\n\tsessionFile: %v\n\tuseSSL: %v\n\tserverCert: %v\n\tserverKey: %v\n",
 		*services.SessionSecret, *services.SessionPeriod, *services.UserFile, *services.SessionsFile, *useSSL, *serverCert, *serverKey)
 
 	// Load user DB

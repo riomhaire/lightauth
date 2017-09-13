@@ -114,30 +114,45 @@ The server can be started with the following parameters:
 
 ```bash
 $ lightauth --help
+lightauth version 0.4
 Usage of lightauth:
   -port int
-        Port to user (default 3000)
+    	Port to user (default 3000)
+  -serverCert string
+    	Server Cert File (default "server.crt")
+  -serverKey string
+    	Server Key File (default "server.key")
   -sessionFile string
-        List of long-term sessions which survive reboots (default "sessions.csv")
+    	List of long-term sessions which survive reboots (default "sessions.csv")
   -sessionPeriod int
-        How many seconds before sessions expires (default 3600)
+    	How many seconds before sessions expires (default 3600)
   -sessionSecret string
-        Master key which is used to generate system jwt (default "secret")
+    	Master key which is used to generate system jwt (default "secret")
+  -useSSL
+    	If True Enable SSL Server support
   -usersFile string
-        List of Users and salted/hashed password with their roles (default "users.csv")
+    	List of Users and salted/hashed password with their roles (default "users.csv")
 ```
 The parameters are pretty much self evident. An example startup would produce:
 
 ```bash
 $ lightauth
-2017/09/11 20:04:59 Reading User Database users.csv
-2017/09/11 20:04:59     User test, Enabled = true
-2017/09/11 20:04:59     User admin, Enabled = true
-2017/09/11 20:04:59 #Number of users = 2
-2017/09/11 20:04:59 Reading Sessions Database sessions.csv
-2017/09/11 20:04:59     Adding Session: user[test] roles[none] expires[ 2020-11-12 03:34:26 +0000 GMT ] TTL[99995366]
-2017/09/11 20:04:59 #Number of sessions = 1
-[negroni] listening on :3000
+2017/09/13 08:12:24 lightauth version 0.4
+2017/09/13 08:12:24     sessionSecret: secret
+        sessionPeriod: 3600
+        userFile: users.csv
+        sessionFile: sessions.csv
+        useSSL: false
+        serverCert: server.crt
+        serverKey: server.key
+2017/09/13 08:12:24 Reading User Database users.csv
+2017/09/13 08:12:24     User test, Enabled = true
+2017/09/13 08:12:24     User admin, Enabled = true
+2017/09/13 08:12:24 #Number of users = 2
+2017/09/13 08:12:24 Reading Sessions Database sessions.csv
+2017/09/13 08:12:24     Adding Session: user[test] roles[none] expires[ 2020-11-12 03:34:26 +0000 GMT ] TTL[99865321]
+2017/09/13 08:12:24 #Number of sessions = 1
+2017/09/13 08:12:24 Starting in HTTP Server Mode - Passwords can be read by man in the middle.
 ```
 
 ## The API
