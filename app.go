@@ -15,20 +15,28 @@ import (
 )
 
 var (
-	Version string = "0.3"
+	version string = "0.4"
 )
 
 func main() {
 	// Command lines
-	fmt.Printf("%s version %s\n", os.Args[0], Version)
+	log.Printf("%s version %s\n", os.Args[0], version)
 
 	services.SessionSecret = flag.String("sessionSecret", "secret", "Master key which is used to generate system jwt")
 	services.SessionPeriod = flag.Int("sessionPeriod", 3600, "How many seconds before sessions expires")
 	services.UserFile = flag.String("usersFile", "users.csv", "List of Users and salted/hashed password with their roles")
 	services.SessionsFile = flag.String("sessionFile", "sessions.csv", "List of long-term sessions which survive reboots")
+	useSSL := flag.Bool("useSSL", false, "If True Enable SSL Server support")
+	serverCert := flag.String("serverCert", "server.crt", "Server Cert File")
+	serverKey := flag.String("serverKey", "server.key", "Server Key File")
+
 	port := flag.Int("port", 3000, "Port to user")
 
 	flag.Parse()
+
+	// Dump parameters
+	log.Printf("\tsessionSecret: %v\n\tsessionPeriod: %v\n\tuserFile: %v\n\tsessionFile: %v\n\tuseSSL: %v\n\tserverCert: %v\n\tserverKey: %v\n",
+		*services.SessionSecret, *services.SessionPeriod, *services.UserFile, *services.SessionsFile, *useSSL, *serverCert, *serverKey)
 
 	// Load user DB
 	if services.LoadUsers(*services.UserFile) != nil {
@@ -69,5 +77,18 @@ func main() {
 	// Stats runs across all instances
 	n.Use(services.StatsMiddleware)
 	n.UseHandler(mux)
-	n.Run(fmt.Sprintf(":%d", *port))
+
+	var err error
+	if *useSSL {
+		log.Println("Starting in SSL HTTPS Server Mode")
+		err = http.ListenAndServeTLS(fmt.Sprintf(":%d", *port), *serverCert, *serverKey, n)
+
+	} else {
+		log.Println("Starting in HTTP Server Mode - Passwords can be read by man in the middle.")
+		err = http.ListenAndServe(fmt.Sprintf(":%d", *port), n)
+	}
+
+	if err != nil {
+		log.Fatal("ListenAndServe: ", err)
+	}
 }

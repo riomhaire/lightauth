@@ -50,14 +50,25 @@ admin,50b911deac5df04e0a79ef18b04b29b245b8f576dcb7e5cca5937eb2083438ba,true,admi
 The password is hashed based on a secret and a salt.  To add a user you need to use the 'lightauthuser' application which takes parameters and creates a line suitable to append to the user csv file:
 
 ```bash
-$ lightauthuser --help
-Usage of lightauthuser:
-  -password string
-        Password to use - cannot be empty
-  -roles string
-        List of roles separated by ':' (default "guest:public")
-  -user string
-        Username associated with the token (default "anonymous")
+$ lightauth --help
+lightauth version 0.4
+Usage of lightauth:
+  -port int
+    	Port to user (default 3000)
+  -serverCert string
+    	Server Cert File (default "server.crt")
+  -serverKey string
+    	Server Key File (default "server.key")
+  -sessionFile string
+    	List of long-term sessions which survive reboots (default "sessions.csv")
+  -sessionPeriod int
+    	How many seconds before sessions expires (default 3600)
+  -sessionSecret string
+    	Master key which is used to generate system jwt (default "secret")
+  -useSSL
+    	If True Enable SSL Server support
+  -usersFile string
+    	List of Users and salted/hashed password with their roles (default "users.csv")
 ```
 
 Roles can be any sensible string 'user', 'api' etc the only one used by the session api is 'admin' which is required for some calls such as 'list known sessions' and 'decode token'.
@@ -343,6 +354,26 @@ Example response:
 	"error": null,
 	"id": "-1"
 }
+```
+
+## SSL
+
+As of 0.4 Support for SSL server has been added based on information at that excellent resource https://gist.github.com/6174/9ff5063a43f0edd82c8186e417aae1dc and is enabled via three command line variables:
+
+* useSSL - set that to 'true' EG '-useSSL true'
+* serverCert - contain the name of the file containing the SSL cert to use
+* serverKey - contain the name of the file containing the server key.
+
+For self signed certificates you can use the following steps to generate them:
+
+```bash
+# Key considerations for algorithm "RSA" ≥ 2048-bit
+openssl genrsa -out server.key 2048
+    
+# List ECDSA the supported curves (openssl ecparam -list_curves)
+openssl ecparam -genkey -name secp384r1 -out server.key
+
+openssl req -new -x509 -sha256 -key server.key -out server.crt -days 3650
 ```
 
 
