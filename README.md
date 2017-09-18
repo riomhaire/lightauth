@@ -51,7 +51,7 @@ The password is hashed based on a secret and a salt.  To add a user you need to 
 
 ```bash
 $ lightauth --help
-lightauth version 0.4
+lightauth version 0.5
 Usage of lightauth:
   -port int
     	Port to user (default 3000)
@@ -59,8 +59,6 @@ Usage of lightauth:
     	Server Cert File (default "server.crt")
   -serverKey string
     	Server Key File (default "server.key")
-  -sessionFile string
-    	List of long-term sessions which survive reboots (default "sessions.csv")
   -sessionPeriod int
     	How many seconds before sessions expires (default 3600)
   -sessionSecret string
@@ -71,12 +69,11 @@ Usage of lightauth:
     	List of Users and salted/hashed password with their roles (default "users.csv")
 ```
 
-Roles can be any sensible string 'user', 'api' etc the only one used by the session api is 'admin' which is required for some calls such as 'list known sessions' and 'decode token'.
-
+Since 0.4 'list' sessions and 'invalidate' are have been removed since keeping track of which sessions are valid and known will be moved to a separate application (no name yet), this will make the authentication and verification more scalable.
 
 ### Session Creation Application
 
-The lightauth server can read a list of sessions from a file called 'sessions.csv' which is used to store a list of long lived session tokens such as those for API's. If a session token is created via the authenticate method they have a limited life span (usually 3600 seconds) before they become invalid. Tokens for api's typically have a requirement for a longer lived period - sometimes months or longer. Long lived Tokens need not be stored within the sessions file since they only need to be encoded using the same parameters as used by the lightauth server itself. The sessions flle is only really used to query for a list of KNOWN sessions tokens.
+If a session token is created via the authenticate method they have a limited life span (usually 3600 seconds) before they become invalid. Tokens for api's typically have a requirement for a longer lived period - sometimes months or longer. Long lived Tokens need not be stored within the sessions file since they only need to be encoded using the same parameters as used by the lightauth server itself. 
 
 The session token creation application is called 'lightauthsession':
 
@@ -114,7 +111,7 @@ The server can be started with the following parameters:
 
 ```bash
 $ lightauth --help
-lightauth version 0.4
+lightauth version 0.5
 Usage of lightauth:
   -port int
     	Port to user (default 3000)
@@ -122,8 +119,6 @@ Usage of lightauth:
     	Server Cert File (default "server.crt")
   -serverKey string
     	Server Key File (default "server.key")
-  -sessionFile string
-    	List of long-term sessions which survive reboots (default "sessions.csv")
   -sessionPeriod int
     	How many seconds before sessions expires (default 3600)
   -sessionSecret string
@@ -137,11 +132,10 @@ The parameters are pretty much self evident. An example startup would produce:
 
 ```bash
 $ lightauth
-2017/09/13 08:12:24 lightauth version 0.4
+2017/09/13 08:12:24 lightauth version 0.5
 2017/09/13 08:12:24     sessionSecret: secret
         sessionPeriod: 3600
         userFile: users.csv
-        sessionFile: sessions.csv
         useSSL: false
         serverCert: server.crt
         serverKey: server.key
@@ -149,9 +143,6 @@ $ lightauth
 2017/09/13 08:12:24     User test, Enabled = true
 2017/09/13 08:12:24     User admin, Enabled = true
 2017/09/13 08:12:24 #Number of users = 2
-2017/09/13 08:12:24 Reading Sessions Database sessions.csv
-2017/09/13 08:12:24     Adding Session: user[test] roles[none] expires[ 2020-11-12 03:34:26 +0000 GMT ] TTL[99865321]
-2017/09/13 08:12:24 #Number of sessions = 1
 2017/09/13 08:12:24 Starting in HTTP Server Mode - Passwords can be read by man in the middle.
 ```
 
@@ -161,12 +152,10 @@ The API is a fairly simple one and consists of:
 
 1. Authenticate/Login.
 2. Verify a session token.
-3. Invalidate session.
-4. List known session tokens.
-5. Get session token details (get roles).
-6. Get Call Statistics.
+3. Get session token details (get roles).
+4. Get Call Statistics.
 
-The endpoint in the default startup can be found at "http://somehost:3000/api/v1/authentication" or "http://somehost:3000/api/v1/session" or "http://somehost:3000/api/v1/admin" - and yes we know we should be using HTTPS or some other transport medium, but this a simple project to help us learn GO and not a prod app.
+The endpoint in the default startup can be found at "http://somehost:3000/api/v1/authentication" or "http://somehost:3000/api/v1/session" or "http://somehost:3000/api/v1/authentication/admin" - and yes we know we should be using HTTPS or some other transport medium, but this a simple project to help us learn GO and not a prod app.
 
 Content-Type should be "application/json"
 
@@ -237,66 +226,6 @@ Example response:
 result is true or false depending is session token is valid or not.
 
 
-### Invalidate session.
-
-Example request  ("http://somehost:3000/api/v1/session"):
-
-```json
-{
-	 "id":"-1",
-	  "method":"session.Invalidate",
-	  "params":[
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1MDQ5Nzk4OTUsImppZCI6IjVmODM1ZGYxLTk5ZWYtNGRiZC1hNTRlLTMyZWFiMThkNDJhMCIsInJvbGVzIjpaInNlY3VyaXR5Il0sInN1YiI6InN0b3JtdHJvb3BlciJ9.XtBeitAsJB63Xj_6q6BqWU0Lo0qgBhHz7oSStPZxchI"
-		]
-}
-```
-
-Example response:
-
-```json
-{
-	"result": true,
-	"error": null,
-	"id": "-1"
-}
-
-```
-### List known session tokens.
-
-Example request ("http://somehost:3000/api/v1/session"):
-
-```json
-{
-	 "id":"-1",
-	  "method":"session.List",
-	  "params": [ { "authorization":
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjI0MDQ2MzQzNzEsImppqCI6Ijg2MTkwNzVmLTA3ZGUtNDk5Yy1iMTgyLWIyNTJiZDNhYjM3YiIsInJvbGVzIjpbImFkbWluIl0sInN1YiI6ImdyZW1saW4ifQ.oAuj5dw4sg0F8aETC9t8d_LrJe_PXj601SDq4xD6Fig"
-								}]
-}
-```
-
-Note: the 'authorization' token should be one which contains a 'admin' role.
-
-
-Example response:
-
-```json
-{
-	"result": {
-		"size": 5,
-		"ids": [
-			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjI1MDQ5NTM5NDAsImppZCI6ImU3YmMxYWY2LTc0MDMtNDFkNi05NWI2LTUxMDg5ODU1NjZkZCIsInJvbGVzIjpbImFwaSIsImFkbWluIl0sInN1YiI6ImdyZW1saW4ifQ.xKQIxtNXlFxnwV5kE2Z0KWB_hV0cgPGHiNnsJgji494",
-			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1MDQ5ODQ1MTMsImppZCI6Ijc1ZmM2MWZjLTk4NjItNDZdZC05MTk1LWJmZmY3ZGVlOTFiYSIsInJvbGVzIjpbInNlY3VyaXR5Il0sInN1YiI6InN0b3JtdHJvb3BlciJ9.UnBlzvx4clDMNI5i8mLBub56IuS6hb_lPwpR0bqRSKg",
-			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1MDQ5ODQ1MTAsImppZCI6ImZhYTA5M2RlLWU0MGE4NDQ0ZC04N2RiLWFhOWU4N2VjMDIyYSIsInJvbGVzIjpbInNlY3VyaXR5Il0sInN1YiI6InN0b3JtdHJvb3BlciJ9.LFajdn1Nx1_fsTsR96sIuswvqHHQBvxcZZbBKRyjW7I",
-			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjI0MDQ2MzQzNzEsImppZCI6Ijg2MTkwNzVmLTA1ZGUtNDk5Yy1iMTgyLWIyNTJiZDNhYjM3YiIsInJvbGVzIjpbImFkbWluIl0sInN1YiI6ImdyZW1saW4ifQ.oAuj5dw4sg0F8aETC9t8d_LrJe_PXj601SDq4xD6Fig",
-			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1OTQ5aDM0OTMsImppZCI6IjVkOWIwMmNlLTcyMzItNDQyZS1hNGRiLTkxMzRlMDFiODZhYSIsInJvbGVzIjpbImFwaSJdLCJzdWIiOiJzeXN0ZW0ifQ.a_VrhyXMMBoK0lZp5CnmWz__SiWOVf1KMWUF_ljCl9w"
-		]
-	},
-	"error": null,
-	"id": "-1"
-}
-
-```
 ### Get session token details (get roles).
 
 Example request ("http://somehost:3000/api/v1/session"):
@@ -335,7 +264,7 @@ The 'error' field will be non-null on error.
 
 More of an devops call which we added to see what "github.com/thoas/stats" would produce.
 
-Example request ("http://somehost:3000/api/v1/admin"):
+Example request ("http://somehost:3000/api/v1/authentication/admin"):
 
 ```json
 {
@@ -350,21 +279,26 @@ Example response:
 ```json
 {
 	"result": {
-		"pid": 3652,
-		"uptime": "44m34.810671702s",
-		"uptime_sec": 2674.810671702,
-		"time": "2017-09-09 19:15:22.892921156 +0100 IST m=+2674.812216312",
-		"unixtime": 1504980922,
-		"status_code_count": {},
-		"total_status_code_count": {
-			"200": 142813
-		},
-		"count": 0,
-		"total_count": 142813,
-		"total_response_time": "17m53.138264488s",
-		"total_response_time_sec": 1073.138264488,
-		"average_response_time": "7.514289ms",
-		"average_response_time_sec": 0.007514289
+		"application": "Authorization",
+		"version": "0.5",
+		"statistics": {
+			"pid": 8943,
+			"uptime": "3m16.264197174s",
+			"uptime_sec": 196.264197174,
+			"time": "2017-09-18 19:51:19.820078277 +0100 IST m=+196.265651036",
+			"unixtime": 1505760679,
+			"status_code_count": {},
+			"total_status_code_count": {
+				"200": 1,
+				"400": 3
+			},
+			"count": 0,
+			"total_count": 4,
+			"total_response_time": "687.008µs",
+			"total_response_time_sec": 0.000687008,
+			"average_response_time": "171.752µs",
+			"average_response_time_sec": 0.000171752
+		}
 	},
 	"error": null,
 	"id": "-1"
@@ -391,7 +325,3 @@ openssl ecparam -genkey -name secp384r1 -out server.key
 openssl req -new -x509 -sha256 -key server.key -out server.crt -days 3650
 ```
 
-
-## Examples
-
-To-Do

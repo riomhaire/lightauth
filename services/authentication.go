@@ -102,3 +102,9 @@ func HashPassword(password, salt string) string {
 	//log.Printf("%s -> %s\n", password, hash)
 	return hash
 }
+
+// Get version
+func (t *AuthenticationService) Version(r *http.Request, args *string, result *string) error {
+	*result = Version
+	return nil
+}

@@ -1,15 +1,16 @@
 package services
 
 import (
-	"github.com/muesli/cache2go"
 	"github.com/thoas/stats"
 )
+
+// Version
+var Version string = "0.5"
 
 // Application Parameters
 var SessionSecret *string
 var SessionPeriod *int
-var SessionsFile *string // Known sessions - like long term API keys
-var UserFile *string     // Known users
+var UserFile *string // Known users
 
 // Contains the global variables used
 var StatsMiddleware = stats.New()
@@ -18,6 +19,4 @@ var StatsMiddleware = stats.New()
 var users = make(map[string]User)
 
 // Session stuff
-var knownSessions []string
-var sessions = cache2go.Cache("sessionCache")
 var ApplicationSessionService = new(SessionService)
