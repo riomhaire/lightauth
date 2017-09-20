@@ -1,0 +1,10 @@
+[Unit]
+Description=LighAuth Service
+
+[Service]
+Restart=always
+ExecStart=/usr/bin/lightauth -usersFile /etc/lightauth/users.csv
+ExecStop=/usr/bin/killall lightauth
+
+[Install]
+WantedBy=default.target

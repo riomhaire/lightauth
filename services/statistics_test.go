@@ -2,14 +2,13 @@ package services
 
 import (
 	"testing"
-
-	"github.com/thoas/stats"
 )
 
 func TestStatisticsService(t *testing.T) {
 	service := new(StatsService)
 	args := StatsArgs{}
-	result := stats.Data{}
+	result := StatsReply{}
+	result.Statistics = StatsMiddleware.Data()
 
 	err := service.Status(nil, &args, &result)
 	if err != nil {

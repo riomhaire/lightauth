@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	_ "net/http/pprof"
 	"os"
 
 	"github.com/riomhaire/lightauth/services"
@@ -14,6 +15,12 @@ import (
 	"github.com/urfave/negroni"
 )
 
+func profile() {
+	log.Println("Profiling running on port 3001")
+	http.ListenAndServe(":3001", http.DefaultServeMux)
+
+}
+
 func main() {
 	// Command lines
 	log.Printf("%s version %s\n", os.Args[0], services.Version)
@@ -22,6 +29,7 @@ func main() {
 	services.SessionPeriod = flag.Int("sessionPeriod", 3600, "How many seconds before sessions expires")
 	services.UserFile = flag.String("usersFile", "users.csv", "List of Users and salted/hashed password with their roles")
 	useSSL := flag.Bool("useSSL", false, "If True Enable SSL Server support")
+	enableProfiling := flag.Bool("profile", false, "Enable profiling endpoint")
 	serverCert := flag.String("serverCert", "server.crt", "Server Cert File")
 	serverKey := flag.String("serverKey", "server.key", "Server Key File")
 
@@ -67,6 +75,11 @@ func main() {
 	// Stats runs across all instances
 	n.Use(services.StatsMiddleware)
 	n.UseHandler(mux)
+
+	// Do we enable profiler?
+	if *enableProfiling {
+		go profile()
+	}
 
 	var err error
 	if *useSSL {

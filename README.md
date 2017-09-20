@@ -51,10 +51,12 @@ The password is hashed based on a secret and a salt.  To add a user you need to 
 
 ```bash
 $ lightauth --help
-lightauth version 0.5
+lightauth version 0.7
 Usage of lightauth:
   -port int
-    	Port to user (default 3000)
+    	Port to use (default 3000)
+  -profile
+    	Enable profiling endpoint
   -serverCert string
     	Server Cert File (default "server.crt")
   -serverKey string
@@ -67,6 +69,7 @@ Usage of lightauth:
     	If True Enable SSL Server support
   -usersFile string
     	List of Users and salted/hashed password with their roles (default "users.csv")
+
 ```
 
 Since 0.4 'list' sessions and 'invalidate' are have been removed since keeping track of which sessions are valid and known will be moved to a separate application (no name yet), this will make the authentication and verification more scalable.
@@ -111,10 +114,12 @@ The server can be started with the following parameters:
 
 ```bash
 $ lightauth --help
-lightauth version 0.5
+lightauth version 0.7
 Usage of lightauth:
   -port int
-    	Port to user (default 3000)
+    	Port to use (default 3000)
+  -profile
+    	Enable profiling endpoint
   -serverCert string
     	Server Cert File (default "server.crt")
   -serverKey string
@@ -132,18 +137,20 @@ The parameters are pretty much self evident. An example startup would produce:
 
 ```bash
 $ lightauth
-2017/09/13 08:12:24 lightauth version 0.5
-2017/09/13 08:12:24     sessionSecret: secret
-        sessionPeriod: 3600
-        userFile: users.csv
-        useSSL: false
-        serverCert: server.crt
-        serverKey: server.key
-2017/09/13 08:12:24 Reading User Database users.csv
-2017/09/13 08:12:24     User test, Enabled = true
-2017/09/13 08:12:24     User admin, Enabled = true
-2017/09/13 08:12:24 #Number of users = 2
-2017/09/13 08:12:24 Starting in HTTP Server Mode - Passwords can be read by man in the middle.
+lightauth version 0.7
+2017/09/20 17:34:19 
+	sessionSecret: secret
+	sessionPeriod: 3600
+	userFile: users.csv
+	useSSL: false
+	serverCert: server.crt
+	serverKey: server.key
+2017/09/20 17:34:19 Reading User Database users.csv
+2017/09/20 17:34:19 	User test, Enabled = true
+2017/09/20 17:34:19 	User admin, Enabled = true
+2017/09/20 17:34:19 #Number of users = 2
+2017/09/20 17:34:19 Starting in HTTP Server Mode - Passwords can be read by man in the middle.
+
 ```
 
 ## The API

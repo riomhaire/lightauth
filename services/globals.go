@@ -5,7 +5,7 @@ import (
 )
 
 // Version
-var Version string = "0.5"
+var Version string = "0.7"
 
 // Application Parameters
 var SessionSecret *string
