@@ -138,7 +138,6 @@ The parameters are pretty much self evident. An example startup would produce:
 ```bash
 $ lightauth
 lightauth version 0.7
-2017/09/20 17:34:19 
 	sessionSecret: secret
 	sessionPeriod: 3600
 	userFile: users.csv

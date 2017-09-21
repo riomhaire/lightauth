@@ -1,0 +1,24 @@
+---
+- hosts: cluster
+  become: yes
+  become_method: sudo
+  gather_facts: yes
+
+  tasks:
+    # Stop and disable the lightauth service 
+    - name: Stop and disable the lightauth service
+      service: name=lightauth enabled=no state=stopped
+
+    # Remove service definition file
+    - name: Remove lightauth service
+      file: path=/etc/systemd/system/lightauth.service state=absent
+
+    # Remove lightauth application
+    - name: Remove lightauth application
+      file: path=/usr/bin/lightauth state=absent
+
+    # Remoce lightauth directory within /etc and dont error if it already exists
+    - name: Remove lightauth config folder
+      file: path=/etc/lightauth state=absent
+
+

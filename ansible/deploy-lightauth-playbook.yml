@@ -1,0 +1,33 @@
+---
+- hosts: cluster
+  become: yes
+  become_method: sudo
+  gather_facts: yes
+
+  tasks:
+    # Kill/Stop any existing lightauth process
+    - name: Stop Existing LightAuth
+      command: /usr/bin/killall lightauth
+      no_log: True
+      ignore_errors: yes      
+
+    # Create lightauth directory within /etc and dont error if it already exists
+    - name: Creates lightauth config folder
+      file: path=/etc/lightauth state=directory
+      no_log: True
+
+    # Copy across users file to the config directory
+    - name: Copy across config/usr file
+      copy: src=users.csv dest=/etc/lightauth/users.csv owner=root group=root mode=0644 backup=yes
+
+    # Copy lightauth application
+    - name: Copy across lightauth application
+      copy: src=lightauth dest=/usr/bin/lightauth owner=root group=root mode=0755
+
+    # Copy across service definition file
+    - name: Copy across lightauth service
+      copy: src=lightauth.service dest=/etc/systemd/system owner=root group=root mode=0777
+
+    # Start and enable the lightauth service 
+    - name: Start and enable the lightauth service
+      service: name=lightauth enabled=yes state=started
