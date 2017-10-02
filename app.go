@@ -15,10 +15,24 @@ import (
 	"github.com/urfave/negroni"
 )
 
+var host = "unknown"
+
 func profile() {
 	log.Println("Profiling running on port 3001")
 	http.ListenAndServe(":3001", http.DefaultServeMux)
 
+}
+
+// AddWorkerHeader - adds header of which node actually processed request
+func AddWorkerHeader(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+	rw.Header().Add("X-Worker", host)
+	next(rw, r)
+}
+
+// AddWorkerVersion - adds header of which version is installed
+func AddWorkerVersion(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+	rw.Header().Add("X-Worker-Version", services.Version)
+	next(rw, r)
 }
 
 func main() {
@@ -36,7 +50,12 @@ func main() {
 	port := flag.Int("port", 3000, "Port to use")
 
 	flag.Parse()
-
+	// Get host
+	var err error
+	host, err = os.Hostname()
+	if err != nil {
+		host = "Unknown"
+	}
 	// Dump parameters
 	log.Printf("\n\tsessionSecret: %v\n\tsessionPeriod: %v\n\tuserFile: %v\n\tuseSSL: %v\n\tserverCert: %v\n\tserverKey: %v\n",
 		*services.SessionSecret, *services.SessionPeriod, *services.UserFile, *useSSL, *serverCert, *serverKey)
@@ -74,6 +93,8 @@ func main() {
 	n := negroni.Classic()
 	// Stats runs across all instances
 	n.Use(services.StatsMiddleware)
+	n.UseFunc(AddWorkerHeader)
+	n.UseFunc(AddWorkerVersion)
 	n.UseHandler(mux)
 
 	// Do we enable profiler?
@@ -81,7 +102,6 @@ func main() {
 		go profile()
 	}
 
-	var err error
 	if *useSSL {
 		log.Println("Starting in SSL HTTPS Server Mode")
 		err = http.ListenAndServeTLS(fmt.Sprintf(":%d", *port), *serverCert, *serverKey, n)
