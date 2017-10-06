@@ -25,5 +25,5 @@ clean:
 	@echo Cleaning
 	@go clean
 
-everything: clean build profile  
+everything: clean build test profile  
 	@echo Done
